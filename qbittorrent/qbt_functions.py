@@ -1,4 +1,4 @@
-
+import asyncio
 
 def torrent_count(qbt_client):
     '''qbt_client will be in main.py  that is returned form login function'''
