@@ -1,6 +1,6 @@
 # Telegram Movie Bot
 
-**Note:** AI assistance was used only for creating and refining this README file.
+Note: AI assistance was used only for creating and refining this README file. My outcome is to learn how to read documentation and write code from start to finish without relying on AI-generated code, thereby reinforcing my ability to create code and solve problems myself.
 ## Description
 
 This is a learning project aimed at creating a Telegram bot that automatically notifies users about new movies available from a specified RSS feed. The bot also provides a button to download the movie directly to a Raspberry Pi using qBittorrent. 
