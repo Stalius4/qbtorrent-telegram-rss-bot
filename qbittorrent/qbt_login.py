@@ -1,8 +1,6 @@
 import qbittorrentapi
-
 def qbt_log_in():
-    '''Login to torrent and return qbt_client so it can be used to other functions'''
-    # instantiate a Client using the appropriate WebUI configuration
+    """Login to qBittorrent and return qbt_client so it can be used in other functions"""
     conn_info = dict(
         host="localhost",
         port=8080,
@@ -11,12 +9,15 @@ def qbt_log_in():
     )
     qbt_client = qbittorrentapi.Client(**conn_info)
 
-    # the Client will automatically acquire/maintain a logged-in state
-    # in line with any request. therefore, this is not strictly necessary;
-    # however, you may want to test the provided login credentials.
     try:
         qbt_client.auth_log_in()
-        print("Great success ")
+        # Manually check if the client is really authenticated.
+        # For example, try fetching a known piece of info (e.g., app version).
+        if not getattr(qbt_client.app, "version", None):
+            raise qbittorrentapi.LoginFailed("Login did not succeed: no version info found.")
+        
+        print("Great success")
         return qbt_client
     except qbittorrentapi.LoginFailed as e:
-        print(e)
+        print(f"Login failed: {e}")
+        return None
