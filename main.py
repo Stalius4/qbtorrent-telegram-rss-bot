@@ -1,13 +1,13 @@
 from qbittorrent import qbt_login, qbt_functions
 import asyncio
-
+from RSS_feed import rss_feed
 
 
 
 
 
 def main():
-  
+    rss_feed.last_documentary()
     qbt_client =qbt_login.qbt_log_in()
     # Check if login is successful 
     if qbt_client is None:
