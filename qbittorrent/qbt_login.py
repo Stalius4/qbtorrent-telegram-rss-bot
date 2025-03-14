@@ -21,3 +21,7 @@ def qbt_log_in():
     except qbittorrentapi.LoginFailed as e:
         print(f"Login failed: {e}")
         return None
+    except qbittorrentapi.APIConnectionError as e:
+        print("Connection to server error")
+        
+
