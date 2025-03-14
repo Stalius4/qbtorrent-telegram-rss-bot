@@ -48,7 +48,7 @@ def main():
     application.add_handler(start_handler)
     status_handler = CommandHandler("status", status)
     application.add_handler(status_handler)
-    list_torrents_handler = CommandHandler("last", list_torrents)
+    list_torrents_handler = CommandHandler("list_all", list_torrents)
     application.add_handler(list_torrents_handler)
     application.run_polling()
     #asyncio.run(qbt_functions.async_add_torrent(qbt_client))
