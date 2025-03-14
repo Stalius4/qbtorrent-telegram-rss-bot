@@ -23,6 +23,13 @@ async def status(update: Update, context: ContextTypes.DEFAULT_TYPE):
         result = "Qbittorrent is offline"
     await context.bot.send_message(chat_id=update.effective_chat.id, text= result)
 
+
+
+async def list_torrents(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    qbt_client = context.bot_data["qbt_client"]
+    result = await qbt_functions.async_list_all_torrents(qbt_client)
+    await context.bot.send_message(chat_id=update.effective_chat.id, text=result)
+
 def main():
     # asyncio.run(rss_feed.async_last_documentary())
     qbt_client =qbt_login.qbt_log_in()
@@ -41,6 +48,8 @@ def main():
     application.add_handler(start_handler)
     status_handler = CommandHandler("status", status)
     application.add_handler(status_handler)
+    list_torrents_handler = CommandHandler("last", list_torrents)
+    application.add_handler(list_torrents_handler)
     application.run_polling()
     #asyncio.run(qbt_functions.async_add_torrent(qbt_client))
     # asyncio.run(qbt_functions.async_torrent_count(qbt_client))

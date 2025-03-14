@@ -16,9 +16,17 @@ async def async_torrent_count(qbt_client):
 
 #Display all saved torrents
 def list_all_torrents(qbt_client):
-    for torrent in qbt_client.torrents_info():
-        print(f"{torrent.hash[-6:]}: {torrent.name} ({torrent.state})")
+    torrents = qbt_client.torrents_info()
+    if not torrents:
+        return "No active torrents found."
+
+    torrent_list = "\n".join(
+        [f"{i+1}.{torrent.name}: ({torrent.state})" for i,torrent in enumerate(torrents)]
+    )
+
     qbt_client.auth_log_out()
+
+    return torrent_list
 
 async def async_list_all_torrents(qbt_client):
     return await asyncio.to_thread(list_all_torrents, qbt_client)
