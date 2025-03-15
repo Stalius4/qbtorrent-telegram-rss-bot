@@ -2,10 +2,16 @@ from qbittorrent import qbt_login, qbt_functions
 import asyncio
 from RSS_feed import rss_feed
 
+import os
+from dotenv import load_dotenv, dotenv_values
+
 import logging
 from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
-TOKEN = "7857625603:AAFEsGheRu-MAw97H7n3TIOs0g8YQAADVOc"
+
+ 
+
+
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -31,6 +37,8 @@ async def list_torrents(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(chat_id=update.effective_chat.id, text=result)
 
 def main():
+    load_dotenv()
+    print(os.getenv("TOKEN"))
     # asyncio.run(rss_feed.async_last_documentary())
     qbt_client =qbt_login.qbt_log_in()
     # Check if login is successful 
@@ -40,7 +48,7 @@ def main():
     
   
   
-    application = ApplicationBuilder().token(TOKEN).build()
+    application = ApplicationBuilder().token(os.getenv("TOKEN")).build()
     application.bot_data["qbt_client"] = qbt_client
 
 
