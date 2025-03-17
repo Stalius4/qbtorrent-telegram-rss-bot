@@ -6,17 +6,59 @@ import os
 from dotenv import load_dotenv, dotenv_values
 
 import logging
-from telegram import Update
-from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram.ext import Application, CallbackQueryHandler, CommandHandler, ContextTypes,JobQueue
 
  
+async def alarm(context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Send the alarm message."""
+
+    #last_documentary() returns title, image, torrent_link, website_link, id
+    new_feed = rss_feed.last_documentary()
+    photo= new_feed["image"]
+    message = (
+        f"{new_feed['title']}\n"
+        f"Torrent link: {new_feed['torrent_link']}"
+    )
+    
+    await context.bot.send_message( chat_id=-1002283195431, text=message)
+    await context.bot.send_photo(chat_id=-1002283195431, photo=photo, caption= message, show_caption_above_media=True)
+
+async def list_3_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Sends a message with three inline buttons attached."""
+    keyboard = [
+        [
+            InlineKeyboardButton("Documentary", callback_data="documentary"),
+            InlineKeyboardButton("Stand-up", callback_data="stand-up"),
+        ],
+        [InlineKeyboardButton("Comedy", callback_data="comedy")],
+    ]
+
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    await update.message.reply_text("Please choose:", reply_markup=reply_markup)
 
 
 
-logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.INFO
-)
+async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Parses the CallbackQuery and updates the message text."""
+    query = update.callback_query
+
+    # CallbackQueries need to be answered, even if no notification to the user is needed
+    # Some clients may have trouble otherwise. See https://core.telegram.org/bots/api#callbackquery
+    await query.answer()
+    doc = rss_feed.last_documentary() 
+    if query.data == "documentary":
+        await query.edit_message_text(text=(
+                        f"Title: {doc.get('title', 'N/A')}\n"
+                        f"Description: {doc.get('image', 'N/A')}\n"
+                        f"Date: {doc.get('website_link', 'N/A')}"
+        ))
+    else:
+        await query.edit_message_text(text="another text")
+
+
+
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(chat_id=update.effective_chat.id, text="I'm a bot, please talk to me!")
@@ -37,8 +79,14 @@ async def list_torrents(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(chat_id=update.effective_chat.id, text=result)
 
 def main():
+    logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    level=logging.INFO)
+
+
     load_dotenv()
-    print(os.getenv("TOKEN"))
+
+    rss_feed.display_rss()
     # asyncio.run(rss_feed.async_last_documentary())
     qbt_client =qbt_login.qbt_log_in()
     # Check if login is successful 
@@ -48,16 +96,31 @@ def main():
     
   
   
-    application = ApplicationBuilder().token(os.getenv("TOKEN")).build()
+    application = Application.builder().token(os.getenv("TOKEN")).build()
     application.bot_data["qbt_client"] = qbt_client
 
-
+    list_3_buttons_handler = CommandHandler('list',list_3_buttons)
+    application.add_handler(list_3_buttons_handler)
+    application.add_handler(CallbackQueryHandler(button))
     start_handler = CommandHandler('start', start)
     application.add_handler(start_handler)
     status_handler = CommandHandler("status", status)
     application.add_handler(status_handler)
     list_torrents_handler = CommandHandler("list_all", list_torrents)
     application.add_handler(list_torrents_handler)
+
+    job_queue = application.job_queue
+    if job_queue is None:
+        job_queue = JobQueue()
+        job_queue.set_application(application)
+        job_queue.start()
+    application.job_queue.run_repeating(
+        alarm,
+        interval=15,       # check every 60 seconds; adjust as needed
+        first=0,           # start immediately
+        data={"chat_id":-1002283195431} # pass the fixed chat ID
+    )
+
     application.run_polling()
     #asyncio.run(qbt_functions.async_add_torrent(qbt_client))
     # asyncio.run(qbt_functions.async_torrent_count(qbt_client))
