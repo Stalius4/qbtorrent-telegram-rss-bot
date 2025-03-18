@@ -34,9 +34,9 @@ async def async_list_all_torrents(qbt_client):
 
 
 
-def add_torrent(qbt_client):
+def add_torrent(qbt_client, url):
     try:
-        torrent = qbt_client.torrents_add(urls="magnet:?xt=urn:btih:155F59344DB38BE97CD6C1059C6A737567E0C19A&dn=Picture+This+%282025%29+%5B1080p%5D+%5BYTS.MX%5D&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce&tr=udp%3A%2F%2Fopen.tracker.cl%3A1337%2Fannounce&tr=udp%3A%2F%2Fp4p.arenabg.com%3A1337%2Fannounce&tr=udp%3A%2F%2Ftracker.torrent.eu.org%3A451%2Fannounce&tr=udp%3A%2F%2Ftracker.dler.org%3A6969%2Fannounce&tr=udp%3A%2F%2Fopen.stealth.si%3A80%2Fannounce&tr=udp%3A%2F%2Fipv4.tracker.harry.lu%3A80%2Fannounce&tr=https%3A%2F%2Fopentracker.i2p.rocks%3A443%2Fannounce")
+        torrent = qbt_client.torrents_add(urls=url)
         print(torrent)
         if torrent != "Ok.":
             print("Wrong magnet link.")
