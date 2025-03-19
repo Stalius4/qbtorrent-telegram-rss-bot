@@ -13,9 +13,10 @@ from telegram.ext import Application, CallbackQueryHandler, CommandHandler, Cont
 async def alarm(context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send the alarm message."""
 
-    #last_documentary() returns title, image, torrent_link, website_link, id
+    #last_documentary() returns title, image, torrent_link, website_link, id, trailer
     new_feed = rss_feed.last_documentary()
     photo= new_feed["image"]
+    youtube_link = new_feed["trailer"] 
     message = (
         f"{new_feed['title']}\n"
         # f"Torrent link: {new_feed['torrent_link']}"
@@ -25,7 +26,10 @@ async def alarm(context: ContextTypes.DEFAULT_TYPE) -> None:
     reply_markup = InlineKeyboardMarkup(button)
     await context.bot.send_photo(chat_id=-1002283195431, photo=photo, caption= message, show_caption_above_media=True,reply_markup=reply_markup)
     context.bot_data["latest_torrent"] = torrent_link
-
+    await context.bot.send_message(
+        chat_id=-1002283195431,
+        text=youtube_link  # Telegram will automatically embed the video
+    )
 
 async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Parses the CallbackQuery and updates the message text."""
